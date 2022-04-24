@@ -55,6 +55,7 @@ void displayDigit(int digit) {
   for (int i = 0; i < 8; i++) {
     digitalWrite(SEGMENT_PINS[i], segCode[digit][i]);
   }
+  return;
 }
 
 
@@ -64,6 +65,7 @@ void update_counter_value() {
     counter = 0;
   }
   //Serial.println(counter);
+  return;
 }
 
 
@@ -108,6 +110,7 @@ void setup() {
 
   dht11_updater.start();
   counter_updater.start();
+  return;
 }
 
 // the loop function runs over and over again forever
@@ -117,14 +120,12 @@ void loop() {
   counter_updater.update();
 
 
-  //  for (int i = 0; i < 1000 / DELAY / 2; i++) { // loops 10 times per second
   displayDigit(counter / 10);
   digitalWrite(MULTIPLEXING_PIN, HIGH);
   delay(DELAY);
   displayDigit(counter % 10);
   digitalWrite(MULTIPLEXING_PIN, LOW);
   delay(DELAY);
-  //  }
-
-
+  
+  return;
 }
