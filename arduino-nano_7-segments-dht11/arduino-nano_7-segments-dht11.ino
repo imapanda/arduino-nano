@@ -32,10 +32,11 @@ const byte segCode[11][8] = {
   { 0, 0, 0, 0, 0, 0, 0, 1}   // .
 };
 
-void update_dht11_values();
-void update_counter_value();
-void displayTemp();
-void displayHumidity();
+void update_dht11_values(void);
+void update_counter_value(void);
+void update_display(void);
+void displayTemp(void);
+void displayHumidity(void);
 
 // Temperature DHT11 settings
 const unsigned int DHT11_PIN = 4; // For dht.h
@@ -43,6 +44,7 @@ const unsigned int DHT11_LED_PIN = 3; // For dht11 led on ticker
 
 Ticker dht11_updater(update_dht11_values, 3000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
 Ticker counter_updater(update_counter_value, 1000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
+Ticker display_update(update_display, 10); 
 dht DHT;
 float temp = 0;
 
@@ -66,20 +68,20 @@ void displayDigit(int digit) {
 }
 
 
-void update_counter_value() {
+void update_counter_value(void) {
 //  counter++;
 //  if (counter > 1) {
 //    counter = 0;
 //  }
 //  Serial.println(counter);
 //
-  // trick 1 :
+  // trick 1 "little player" :
   counter = 1 - counter;
   return;
 }
 
 
-void update_dht11_values() {
+void update_dht11_values(void) {
 
   //Light up temp reading led
   digitalWrite(DHT11_LED_PIN, HIGH);
@@ -100,7 +102,7 @@ void update_dht11_values() {
   return;
 }
 
-void displayTemp() {
+void displayTemp(void) {
     displayDigit(DHT.temperature / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
     delay(DELAY);
@@ -110,7 +112,7 @@ void displayTemp() {
     return;
 }
 
-void displayHumidity() {
+void displayHumidity(void) {
     displayDigit(DHT.humidity / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
     delay(DELAY);
@@ -136,20 +138,29 @@ void setup() {
   pinMode(DHT11_PIN, INPUT);
   pinMode(DHT11_LED_PIN, OUTPUT);
 
-  delay(1111);
+  delay(1234);
 
   dht11_updater.start();
   counter_updater.start();
+  display_update.start();
   return;
 }
+
+
+
+void update_display(void) {
+  
+  functions[counter&1]();
+  return;
+}
+
+
 
 // the loop function runs over and over again forever
 void loop() {
 
   dht11_updater.update();  // It will check the Ticker, and if necessary, will run the callback.
   counter_updater.update();
-  
-  functions[counter&1]();
   
   return;
 }
