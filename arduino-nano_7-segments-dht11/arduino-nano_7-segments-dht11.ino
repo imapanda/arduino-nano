@@ -17,8 +17,6 @@ const unsigned int MULTIPLEXING_PIN = 5;
 
 // GPIO Pinout for 7 segment display
 const unsigned int SEGMENT_PINS[] = {12, 11, 10, 9, 8, 7, 6, 5 };   // { a b c d e f g . )
-
-
 const byte segCode[11][8] = {
   //  a  b  c  d  e  f  g  .
   { 1, 1, 1, 1, 1, 1, 0, 0},  // 0
@@ -34,13 +32,96 @@ const byte segCode[11][8] = {
   { 0, 0, 0, 0, 0, 0, 0, 1}   // .
 };
 
+
+// Temperature DHT11 settings
+const unsigned int DHT11_PIN 16 // For dht.h
+
+Ticker myClock;
+dht DHT;
+float temp = 0;
+
+// Settings for ticker
+int show_clock=1;
+
+void updateTempAndDisplay() {
+int chk = DHT.read11(DHT11_PIN);
+// DHT.temperature
+// DHT.humidity
+
+  
+  
+  show_clock = ms<500;
+  
+  
+  if(show_clock) {  // Display temp for 1/2 second
+    sprintf(s, "%02d", 33); // print to string
+    for (int digit = 0; digit < NUM_DIGIT; digit++) {
+      chip_disable();
+      digit_select(digit);
+      x = s[NUM_DIGIT - 1 - digit];
+      //Serial.println(x);
+      set_data(x);
+      write_disable();
+      delayMicroseconds(50);      // pauses for 50 microseconds
+      write_enable();
+      digit_unselect();
+      chip_enable();
+
+      delayMicroseconds(50);      // pauses for 50 microseconds
+    }
+
+  
+  }
+  else {  // Display temp for 1/2 second
+    sprintf(s, "%02d", 99); // print to string
+    for (int digit = 0; digit < NUM_DIGIT; digit++) {
+      chip_disable();
+      digit_select(digit);
+      x = s[NUM_DIGIT - 1 - digit];
+      //Serial.println(x);
+      set_data(x);
+      write_disable();
+      delayMicroseconds(50);      // pauses for 50 microseconds
+      write_enable();
+      digit_unselect();
+      chip_enable();
+
+      delayMicroseconds(50);      // pauses for 50 microseconds
+    }
+  }
+
+
+  //always update hhmmss
+  ms+=displayPeriodMS;
+  if(ms>=1000) {
+    ms-=1000;
+    ss++;
+    if (ss > 59) {
+      ss = 0;
+      mm++;
+    }
+    if (mm > 59) {
+      mm = 0;
+      hh++;
+    }
+    if (hh > 23) {
+      hh = 0;
+    }
+  
+  }
+ 
+  return;
+}
+
+
+
+
 void displayDigit(int digit)
 {
   for (int i = 0; i < 8; i++) {
     digitalWrite(SEGMENT_PINS[i], segCode[digit][i]);
   }
 }
-
 
 
 // the setup function runs once when you press reset or power the board
