@@ -7,7 +7,7 @@
 */
 
 #include <dht.h>
-#include <Ticker.h>  //Ticker Library
+#include "Ticker.h" // See https://github.com/sstaub/Ticker
 
 const unsigned int DELAY = 50;
 
@@ -32,95 +32,47 @@ const byte segCode[11][8] = {
   { 0, 0, 0, 0, 0, 0, 0, 1}   // .
 };
 
+void update_dht11_values();
+void update_counter_value();
 
 // Temperature DHT11 settings
-const unsigned int DHT11_PIN 16 // For dht.h
+const unsigned int DHT11_PIN = 16; // For dht.h
+const unsigned int DHT11_LED_PIN = 3; // For dht11 led on ticker
 
-Ticker myClock;
+Ticker dht11_updater(update_dht11_values, 0, 9000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
+Ticker counter_updater(update_counter_value, 0, 1000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
 dht DHT;
 float temp = 0;
 
 // Settings for ticker
-int show_clock=1;
+int show_clock = 1;
 
-void updateTempAndDisplay() {
-int chk = DHT.read11(DHT11_PIN);
-// DHT.temperature
-// DHT.humidity
-
-  
-  
-  show_clock = ms<500;
-  
-  
-  if(show_clock) {  // Display temp for 1/2 second
-    sprintf(s, "%02d", 33); // print to string
-    for (int digit = 0; digit < NUM_DIGIT; digit++) {
-      chip_disable();
-      digit_select(digit);
-      x = s[NUM_DIGIT - 1 - digit];
-      //Serial.println(x);
-      set_data(x);
-      write_disable();
-      delayMicroseconds(50);      // pauses for 50 microseconds
-      write_enable();
-      digit_unselect();
-      chip_enable();
-
-      delayMicroseconds(50);      // pauses for 50 microseconds
-    }
-
-  
-  }
-  else {  // Display temp for 1/2 second
-    sprintf(s, "%02d", 99); // print to string
-    for (int digit = 0; digit < NUM_DIGIT; digit++) {
-      chip_disable();
-      digit_select(digit);
-      x = s[NUM_DIGIT - 1 - digit];
-      //Serial.println(x);
-      set_data(x);
-      write_disable();
-      delayMicroseconds(50);      // pauses for 50 microseconds
-      write_enable();
-      digit_unselect();
-      chip_enable();
-
-      delayMicroseconds(50);      // pauses for 50 microseconds
-    }
-  }
+unsigned int counter = 0;
 
 
-  //always update hhmmss
-  ms+=displayPeriodMS;
-  if(ms>=1000) {
-    ms-=1000;
-    ss++;
-    if (ss > 59) {
-      ss = 0;
-      mm++;
-    }
-    if (mm > 59) {
-      mm = 0;
-      hh++;
-    }
-    if (hh > 23) {
-      hh = 0;
-    }
-  
-  }
- 
-  return;
-}
-
-
-
-
-void displayDigit(int digit)
-{
+void displayDigit(int digit) {
+  // Write values of digit using segCode onto SEGMENT_PINS
   for (int i = 0; i < 8; i++) {
     digitalWrite(SEGMENT_PINS[i], segCode[digit][i]);
   }
+}
+
+
+void update_counter_value(){
+  counter++;
+  if (counter > 99) {
+    counter = 0;
+  }
+}
+
+
+void update_dht11_values() {
+  update_counter_value();
+  //int chk = DHT.read11(DHT11_PIN);
+  digitalWrite(DHT11_LED_PIN, HIGH);
+  delay(500);
+  digitalWrite(DHT11_LED_PIN, LOW);
+  return;
 }
 
 
@@ -131,99 +83,32 @@ void setup() {
     pinMode(SEGMENT_PINS[i], OUTPUT);
   }
 
-
   pinMode(MULTIPLEXING_PIN, OUTPUT);
+  
+  pinMode(DHT11_PIN, INPUT);
+  pinMode(DHT11_LED_PIN, OUTPUT);
+  dht11_updater.start();
+  counter_updater.start();
 }
 
 // the loop function runs over and over again forever
 void loop() {
+  // loop every 1 second approx.
+  // 1 second = 1,000,000 microseconds
+  // 1 second = delay(1000)
+  dht11_updater.update();
+  counter_updater.update();
 
-  for (int n = 0; n < 10; n++) {    // display digits 0 - 9 and decimal point
-    displayDigit(n);
-    for (int i = 0; i < 200; i++) {
-      digitalWrite(MULTIPLEXING_PIN, HIGH);
-      delay(1);
-      digitalWrite(MULTIPLEXING_PIN, LOW);
-      delay(1);
-    }
+
+  for (int i = 0; i < 1000 / DELAY / 2; i++) { // loops 10 times per second
+    displayDigit(counter / 10);
+    digitalWrite(MULTIPLEXING_PIN, HIGH);
+    delay(DELAY);
+    displayDigit(counter % 10);
+    digitalWrite(MULTIPLEXING_PIN, LOW);
+    delay(DELAY);
   }
 
+  //delay(1000);
 
-
-  digitalWrite(MULTIPLEXING_PIN, HIGH);
-  //  digitalWrite(SEGMENT_A, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_A, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_B, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_B, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_C, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_C, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_D, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_D, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_E, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_E, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_F, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_F, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_G, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_G, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(MULTIPLEXING_PIN, LOW);
-  //  digitalWrite(SEGMENT_A, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_A, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_B, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_B, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_C, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_C, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_D, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_D, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_E, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_E, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_F, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_F, LOW);
-  //  delay(DELAY);
-  //
-  //  digitalWrite(SEGMENT_G, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(DELAY);
-  //  digitalWrite(SEGMENT_G, LOW);
-  //  delay(DELAY);
-
-  //  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  //  delay(100);                       // wait for a second
-  //  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  //  delay(100);                       // wait for a second
 }
