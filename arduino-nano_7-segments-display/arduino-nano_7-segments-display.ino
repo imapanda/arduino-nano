@@ -55,10 +55,12 @@ void loop() {
 
   for (int n = 0; n < 10; n++) {    // display digits 0 - 9 and decimal point
     displayDigit(n);
-    digitalWrite(MULTIPLEXING_PIN, HIGH);
-    delay(20);
-    digitalWrite(MULTIPLEXING_PIN, LOW);
-    delay(20);
+    for (int i = 0; i < 200; i++) {
+      digitalWrite(MULTIPLEXING_PIN, HIGH);
+      delay(1);
+      digitalWrite(MULTIPLEXING_PIN, LOW);
+      delay(1);
+    }
   }
 
 
