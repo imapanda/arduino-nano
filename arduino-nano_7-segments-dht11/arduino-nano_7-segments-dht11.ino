@@ -48,8 +48,12 @@ Ticker display_update(update_display, 10);
 dht DHT;
 float temp = 0;
 
-// Settings for ticker
-int show_clock = 1;
+typedef enum {
+  E_DIZ=0,
+  E_UNIT
+  } eDigit;
+
+eDigit digit = E_DIZ;
 
 unsigned int counter = 0;
 unsigned int temperature_value = 0;
@@ -103,22 +107,48 @@ void update_dht11_values(void) {
 }
 
 void displayTemp(void) {
+#if 1
+  if (digit==E_DIZ) {
+    displayDigit(DHT.temperature / 10);
+    digitalWrite(MULTIPLEXING_PIN, HIGH);
+    digit=E_UNIT;
+  }
+  else {
+    displayDigit((int)(DHT.temperature+.5) % 10); // (int)(g+0.5); work if g is positive only, -0.5 if negative
+    digitalWrite(MULTIPLEXING_PIN, LOW);
+    digit=E_DIZ;
+  }
+#else
     displayDigit(DHT.temperature / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
 //    delay(DELAY);
     displayDigit((int)(DHT.temperature+.5) % 10); // (int)(g+0.5); work if g is positive only, -0.5 if negative
     digitalWrite(MULTIPLEXING_PIN, LOW);
 //    delay(DELAY);
+#endif
     return;
 }
 
 void displayHumidity(void) {
+#if 1
+  if (digit==E_DIZ) {
+    displayDigit(DHT.humidity / 10);
+    digitalWrite(MULTIPLEXING_PIN, HIGH);
+    digit=E_UNIT;
+  }
+  else {
+    displayDigit((int)(DHT.humidity+.5) % 10);
+    digitalWrite(MULTIPLEXING_PIN, LOW);
+    digit=E_DIZ;
+  }
+#else
     displayDigit(DHT.humidity / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
 //    delay(DELAY);
     displayDigit((int)(DHT.humidity+.5) % 10);
     digitalWrite(MULTIPLEXING_PIN, LOW);
 //    delay(DELAY);
+#endif
     return;
 }
 
