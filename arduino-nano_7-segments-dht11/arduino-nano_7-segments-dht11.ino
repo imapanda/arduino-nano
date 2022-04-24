@@ -105,20 +105,20 @@ void update_dht11_values(void) {
 void displayTemp(void) {
     displayDigit(DHT.temperature / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
-    delay(DELAY);
+//    delay(DELAY);
     displayDigit((int)(DHT.temperature+.5) % 10); // (int)(g+0.5); work if g is positive only, -0.5 if negative
     digitalWrite(MULTIPLEXING_PIN, LOW);
-    delay(DELAY);
+//    delay(DELAY);
     return;
 }
 
 void displayHumidity(void) {
     displayDigit(DHT.humidity / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
-    delay(DELAY);
+//    delay(DELAY);
     displayDigit((int)(DHT.humidity+.5) % 10);
     digitalWrite(MULTIPLEXING_PIN, LOW);
-    delay(DELAY);
+//    delay(DELAY);
     return;
 }
 
@@ -161,6 +161,7 @@ void loop() {
 
   dht11_updater.update();  // It will check the Ticker, and if necessary, will run the callback.
   counter_updater.update();
+  display_update.update();
   
   return;
 }
