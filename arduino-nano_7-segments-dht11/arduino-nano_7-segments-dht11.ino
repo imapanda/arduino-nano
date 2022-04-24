@@ -36,7 +36,7 @@ void update_dht11_values();
 void update_counter_value();
 
 // Temperature DHT11 settings
-const unsigned int DHT11_PIN = 16; // For dht.h
+const unsigned int DHT11_PIN = 4; // For dht.h
 const unsigned int DHT11_LED_PIN = 3; // For dht11 led on ticker
 
 Ticker dht11_updater(update_dht11_values, 3000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
@@ -58,20 +58,31 @@ void displayDigit(int digit) {
 }
 
 
-void update_counter_value(){
+void update_counter_value() {
   counter++;
   if (counter > 99) {
     counter = 0;
   }
-  Serial.println(counter);
+  //Serial.println(counter);
 }
 
 
 void update_dht11_values() {
-  //update_counter_value();
-  
-  //int chk = DHT.read11(DHT11_PIN);
+
+  //Light up temp reading led
   digitalWrite(DHT11_LED_PIN, HIGH);
+  
+  DHT.read11(DHT11_PIN);
+  Serial.print("Current humidity = ");
+  Serial.print(DHT.humidity);
+  Serial.print("%  ");
+  Serial.print("temperature = ");
+  Serial.print(DHT.temperature);
+  // DHT11 has this limit, it can read temperature and humidity only by integer value.
+  // If you need better precision up to 0.1° then use DHT22 which is more advanced and expensive of course.
+  Serial.println("C  ");
+  //int chk = DHT.read11(DHT11_PIN);
+  
   delay(7);
   digitalWrite(DHT11_LED_PIN, LOW);
   return;
@@ -82,38 +93,38 @@ void update_dht11_values() {
 void setup() {
 
   Serial.begin(9600);
-  
+
   // initialize digital pins as an output.
   for (int i = 0; i < 8; i++) {
     pinMode(SEGMENT_PINS[i], OUTPUT);
   }
 
   pinMode(MULTIPLEXING_PIN, OUTPUT);
-  
+
   pinMode(DHT11_PIN, INPUT);
   pinMode(DHT11_LED_PIN, OUTPUT);
-  
+
   delay(1111);
-  
+
   dht11_updater.start();
   counter_updater.start();
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  
+
   dht11_updater.update();  // It will check the Ticker, and if necessary, will run the callback.
   counter_updater.update();
 
 
-//  for (int i = 0; i < 1000 / DELAY / 2; i++) { // loops 10 times per second
-    displayDigit(counter / 10);
-    digitalWrite(MULTIPLEXING_PIN, HIGH);
-    delay(DELAY);
-    displayDigit(counter % 10);
-    digitalWrite(MULTIPLEXING_PIN, LOW);
-    delay(DELAY);
-//  }
+  //  for (int i = 0; i < 1000 / DELAY / 2; i++) { // loops 10 times per second
+  displayDigit(counter / 10);
+  digitalWrite(MULTIPLEXING_PIN, HIGH);
+  delay(DELAY);
+  displayDigit(counter % 10);
+  digitalWrite(MULTIPLEXING_PIN, LOW);
+  delay(DELAY);
+  //  }
 
 
 }
