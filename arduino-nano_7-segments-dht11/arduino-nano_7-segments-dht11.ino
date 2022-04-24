@@ -48,6 +48,8 @@ float temp = 0;
 int show_clock = 1;
 
 unsigned int counter = 0;
+unsigned int temperature_value = 0;
+unsigned int humidity_value = 0;
 
 
 void displayDigit(int digit) {
@@ -60,11 +62,14 @@ void displayDigit(int digit) {
 
 
 void update_counter_value() {
-  counter++;
-  if (counter > 99) {
-    counter = 0;
-  }
-  //Serial.println(counter);
+//  counter++;
+//  if (counter > 1) {
+//    counter = 0;
+//  }
+//  Serial.println(counter);
+//
+//  trick:
+  counter = 1 - counter;
   return;
 }
 
