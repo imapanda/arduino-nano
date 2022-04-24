@@ -41,10 +41,11 @@ void displayHumidity(void);
 // Temperature DHT11 settings
 const unsigned int DHT11_PIN = 4; // For dht.h
 const unsigned int DHT11_LED_PIN = 3; // For dht11 led on ticker
+const unsigned int DISPLAY_LED_PIN = 2;
 
 Ticker dht11_updater(update_dht11_values, 3000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
 Ticker counter_updater(update_counter_value, 1000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
-Ticker display_update(update_display, 10); 
+Ticker display_update(update_display, 100); //25 imags secondes = 40ms = 1/25; 100hz = 10ms
 dht DHT;
 float temp = 0;
 
@@ -53,7 +54,7 @@ typedef enum {
   E_UNIT
   } eDigit;
 
-eDigit digit = E_DIZ;
+eDigit digit = E_DIZ; //au rythme de l'appel toutes les 10ms change d'état
 
 unsigned int counter = 0;
 unsigned int temperature_value = 0;
@@ -90,6 +91,7 @@ void update_dht11_values(void) {
   //Light up temp reading led
   digitalWrite(DHT11_LED_PIN, HIGH);
   
+  
   DHT.read11(DHT11_PIN);
   Serial.print("Current humidity = ");
   Serial.print(DHT.humidity);
@@ -103,17 +105,22 @@ void update_dht11_values(void) {
   
   delay(7);
   digitalWrite(DHT11_LED_PIN, LOW);
+  
   return;
 }
 
 void displayTemp(void) {
 #if 1
+  digitalWrite(DISPLAY_LED_PIN, HIGH);
   if (digit==E_DIZ) {
     displayDigit(DHT.temperature / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
     digit=E_UNIT;
+    
+  
   }
   else {
+    
     displayDigit((int)(DHT.temperature+.5) % 10); // (int)(g+0.5); work if g is positive only, -0.5 if negative
     digitalWrite(MULTIPLEXING_PIN, LOW);
     digit=E_DIZ;
@@ -131,6 +138,7 @@ void displayTemp(void) {
 
 void displayHumidity(void) {
 #if 1
+  digitalWrite(DISPLAY_LED_PIN, LOW);
   if (digit==E_DIZ) {
     displayDigit(DHT.humidity / 10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
@@ -167,6 +175,7 @@ void setup() {
 
   pinMode(DHT11_PIN, INPUT);
   pinMode(DHT11_LED_PIN, OUTPUT);
+  pinMode(DISPLAY_LED_PIN, OUTPUT);
 
   delay(1234);
 
