@@ -45,7 +45,7 @@ const unsigned int DISPLAY_LED_PIN = 2;
 
 Ticker dht11_updater(update_dht11_values, 3000);  //calls function update_dht11_values() every 2 seconds, internal resolution is micros, running endless
 Ticker counter_updater(update_counter_value, 2000);  // Change display screen timer
-Ticker display_update(update_display, 100); //25 imags secondes = 40ms = 1/25; 100hz = 10ms
+Ticker display_update(update_display, 10); //25 imags secondes = 40ms = 1/25; 100hz = 10ms
 dht DHT;
 float temp = 0;
 
