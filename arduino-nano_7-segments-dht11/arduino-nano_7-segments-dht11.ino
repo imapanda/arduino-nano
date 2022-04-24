@@ -34,6 +34,8 @@ const byte segCode[11][8] = {
 
 void update_dht11_values();
 void update_counter_value();
+void displayTemp();
+void displayHumidity();
 
 // Temperature DHT11 settings
 const unsigned int DHT11_PIN = 4; // For dht.h
@@ -52,6 +54,9 @@ unsigned int temperature_value = 0;
 unsigned int humidity_value = 0;
 
 
+void (*functions[2])(void) = {displayTemp,displayHumidity};
+
+
 void displayDigit(int digit) {
   // Write values of digit using segCode onto SEGMENT_PINS
   for (int i = 0; i < 8; i++) {
@@ -68,7 +73,7 @@ void update_counter_value() {
 //  }
 //  Serial.println(counter);
 //
-//  trick:
+  // trick 1 :
   counter = 1 - counter;
   return;
 }
@@ -93,6 +98,26 @@ void update_dht11_values() {
   delay(7);
   digitalWrite(DHT11_LED_PIN, LOW);
   return;
+}
+
+void displayTemp() {
+    displayDigit(DHT.temperature / 10);
+    digitalWrite(MULTIPLEXING_PIN, HIGH);
+    delay(DELAY);
+    displayDigit((int)(DHT.temperature+.5) % 10); // (int)(g+0.5); work if g is positive only, -0.5 if negative
+    digitalWrite(MULTIPLEXING_PIN, LOW);
+    delay(DELAY);
+    return;
+}
+
+void displayHumidity() {
+    displayDigit(DHT.humidity / 10);
+    digitalWrite(MULTIPLEXING_PIN, HIGH);
+    delay(DELAY);
+    displayDigit((int)(DHT.humidity+.5) % 10);
+    digitalWrite(MULTIPLEXING_PIN, LOW);
+    delay(DELAY);
+    return;
 }
 
 
@@ -123,14 +148,8 @@ void loop() {
 
   dht11_updater.update();  // It will check the Ticker, and if necessary, will run the callback.
   counter_updater.update();
-
-
-  displayDigit(counter / 10);
-  digitalWrite(MULTIPLEXING_PIN, HIGH);
-  delay(DELAY);
-  displayDigit(counter % 10);
-  digitalWrite(MULTIPLEXING_PIN, LOW);
-  delay(DELAY);
+  
+  functions[counter&1]();
   
   return;
 }
