@@ -5,7 +5,7 @@
   Using 7 segments displays (common cathode) on Arduino Nano with logic gate for multiplexing.
 */
 
-const unsigned int DELAY = 50;
+const unsigned int DELAY = 75;
 
 // GPIO Pinout for multiplexing displays, this is done with hardware logic gates.
 // This allows us to save gpio pins for other uses.
@@ -31,8 +31,8 @@ const byte segCode[11][8] = {
   { 0, 0, 0, 0, 0, 0, 0, 1}   // .
 };
 
-void displayDigit(int digit)
-{
+void displayDigit(int digit) {
+  // Write values of digit using segCode onto SEGMENT_PINS
   for (int i = 0; i < 8; i++) {
     digitalWrite(SEGMENT_PINS[i], segCode[digit][i]);
   }
@@ -51,17 +51,21 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-  //loop every 1 second approx.
+  // loop every 1 second approx.
   // 1 second = 1,000,000 microseconds
-  for (int i = 0; i < 10; i++) { // loops 10 times per second
+  // 1 second = delay(1000)
+  
+  
+  for (int i = 0; i < 1000/DELAY/2; i++) { // loops 10 times per second
     displayDigit(counter/10);
     digitalWrite(MULTIPLEXING_PIN, HIGH);
-    delayMicroseconds(100000);
+    delay(DELAY);
     displayDigit(counter%10);
     digitalWrite(MULTIPLEXING_PIN, LOW);
-    delayMicroseconds(100000);
+    delay(DELAY);
   }
-
+  
+  //delay(1000);
   
   counter++;
   if(counter > 99){counter=0;}
