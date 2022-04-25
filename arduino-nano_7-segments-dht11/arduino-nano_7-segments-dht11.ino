@@ -95,6 +95,14 @@ void update_dht11_values(void) {
   //Light up temp reading led
   digitalWrite(DHT11_LED_PIN, HIGH);
 
+  // Display "-" on display (digit one) while reading :
+  int i;
+  for (i = 0; i < 8; i++) { // clearing
+    digitalWrite(SEGMENT_PINS[i], 0);
+  }
+  digitalWrite(6, HIGH);
+  
+
   DHT.read11(DHT11_PIN);
   Serial.print("Current humidity = ");
   Serial.print(DHT.humidity);
@@ -107,7 +115,7 @@ void update_dht11_values(void) {
   Serial.println("C  ");
   //int chk = DHT.read11(DHT11_PIN);
 
-  delay(200); //used to simulate dht11 latency
+  delay(200); // used to simulate more dht11 latency
   digitalWrite(DHT11_LED_PIN, LOW);
 
   return;
