@@ -9,8 +9,15 @@
 #include <dht.h>
 #include "Ticker.h" // See https://github.com/sstaub/Ticker for more infos
 
-const unsigned int DISPLAY_TICKS = 2;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
-const unsigned int DHT_11_READ_TIMING = 4000;  // Delay between each DHT11 reads
+#define DEBUG 0 //Quick debug for module 1 (multiplexing 7 segment cathodes)
+
+#if DEBUG
+const unsigned int DISPLAY_TICKS = 50;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
+#else
+const unsigned int DISPLAY_TICKS = 10;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
+#endif
+
+const unsigned int DHT_11_READ_TIMING = 10000;  // Delay between each DHT11 reads
 const unsigned int DISPLAY_MODE_INTERVAL = 2000;  // Change display screen timer
 
 // GPIO Pinout for multiplexing displays, this is done with hardware logic gates.
