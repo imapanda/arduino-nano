@@ -23,8 +23,8 @@ const unsigned int DISPLAY_TICKS = 50;  // 25 images secondes = 40ms = 1/25; 100
 const unsigned int DISPLAY_TICKS = 10;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
 #endif
 
-const unsigned int DHT_11_READ_TIMING = 10000;  // Delay between each DHT11 reads
-const unsigned int DISPLAY_MODE_INTERVAL = 2000;  // Change display screen timer
+const unsigned int DHT_11_READ_TIMING = 10000;  // Delay between each DHT11 reads (ms)
+const unsigned int DISPLAY_MODE_INTERVAL = 2000;  // Change display screen timer (ms)
 
 // GPIO Pinout for multiplexing displays, this is done with hardware logic gates.
 // This allows us to save gpio pins for other uses.
