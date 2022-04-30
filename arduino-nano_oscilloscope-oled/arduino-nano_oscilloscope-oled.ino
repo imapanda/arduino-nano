@@ -4,6 +4,9 @@
    Original code by Noriaki Mitsunaga
 
 */
+#define MENU_BUTTONS
+
+
 #include <Adafruit_SSD1306.h>
 #define SCREEN_WIDTH        128
 #define SCREEN_HEIGHT        32
@@ -19,30 +22,29 @@ Adafruit_SSD1306 screen(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET_PIN);
 // Boot + status led
 const uint8_t STATUS_LED_OK_PIN = 11;
 const uint8_t STATUS_LED_KO_PIN = 12;
-#ifdef MENU_BUTTONS
+const uint8_t DEBUG_LED_PIN = 13;
 
+#ifdef MENU_BUTTONS
+// Menu buttons stuff
 // Menu buttons pins
 const uint8_t BTN_POS  = 8;
 const uint8_t BTN_NEG  = 11;
 const uint8_t BTN_MENU = 10;
-
-// Menu buttons stuff
 // software debounce by using a timer
-  #include <Ticker.h>
-  volatile bool oldPushButtonState = false;
+#include <Ticker.h>
+volatile bool oldPushButtonState = false;
 
-  
-  // set the debounce time here in [ms] ; 40 seems to be a good value :)
-  #define MAX_BOUND_DURATION_MS 40
-  #define DEBOUNCE_TIMER_INTERVAL_MS 1
-  #define MAX_BOUND_COUNT (MAX_BOUND_DURATION_MS/DEBOUNCE_TIMER_INTERVAL_MS)
-  // Push button debounce stuff
-  void update_debounceTimer();
-  Ticker debounceTimer(update_debounceTimer,   DEBOUNCE_TIMER_INTERVAL_MS/1000.);      
-  
-  volatile int pushButtonStableLevelCount = 0;
-  volatile int pushButtonPushedCount = 0;
-  volatile int pushButtonReleasedCount = 0;
+// set the debounce time here in [ms] ; 40 seems to be a good value :)
+#define MAX_BOUND_DURATION_MS 40
+#define DEBOUNCE_TIMER_INTERVAL_MS 1
+#define MAX_BOUND_COUNT (MAX_BOUND_DURATION_MS/DEBOUNCE_TIMER_INTERVAL_MS)
+// Push button debounce stuff
+void update_debounceTimer();
+Ticker debounceTimer(update_debounceTimer,   DEBOUNCE_TIMER_INTERVAL_MS, 0, MICROS_MICROS);
+
+volatile int pushButtonStableLevelCount = 0;
+volatile int pushButtonPushedCount = 0;
+volatile int pushButtonReleasedCount = 0;
 #endif
 
 
@@ -94,16 +96,19 @@ byte sample = 0;                         // index for double buffer*/
 
 #ifdef MENU_BUTTONS
 bool getPushButtonState(void) {
-  
+
   Serial.print(" getPushButtonState ");
   Serial.print(digitalRead(BTN_MENU));
   Serial.print(" ");
   Serial.print(digitalRead(BTN_MENU) == HIGH);
-  Serial.print(" ");
+  Serial.print(" - ");
   return digitalRead(BTN_MENU) == HIGH;
 }
 
-void update_debounceTimer(){
+void update_debounceTimer() {
+
+  digitalWrite(DEBUG_LED_PIN, HIGH);
+
   Serial.print("update_debounceTimer ");
   // read the current push button state
   bool newPushButtonState = getPushButtonState();
@@ -111,6 +116,8 @@ void update_debounceTimer(){
   Serial.print(oldPushButtonState);
   Serial.print(" vs ");
   Serial.println(newPushButtonState);
+
+  
   // same state as previous => exit
   if (newPushButtonState == oldPushButtonState) {
     return;
@@ -148,6 +155,10 @@ void update_debounceTimer(){
       Serial.println(pushButtonReleasedCount);
     }
   }
+  Serial.println(pushButtonStableLevelCount);
+  Serial.println(pushButtonStableLevelCount);
+  digitalWrite(DEBUG_LED_PIN, HIGH);
+
 }
 #endif
 
@@ -260,7 +271,10 @@ void setup() {
   pinMode(STATUS_LED_KO_PIN, OUTPUT);
   digitalWrite(STATUS_LED_KO_PIN, HIGH);
 
-  Serial.begin(9600);
+  pinMode(DEBUG_LED_PIN, OUTPUT);
+
+  //Serial.begin(9600);
+  Serial.begin(115200);
 
 #ifdef MENU_BUTTONS
   // Setup of menu buttons
@@ -268,10 +282,11 @@ void setup() {
   pinMode(BTN_NEG, INPUT);
   pinMode(BTN_MENU, INPUT);
 
-  //oldPushButtonState = getPushButtonState();
-  debounceTimer.attach(DEBOUNCE_TIMER_INTERVAL_MS / 1000., debounceHandler); // debounce period in [ms]
+  oldPushButtonState = getPushButtonState();
+  //debounceTimer.attach(DEBOUNCE_TIMER_INTERVAL_MS / 1000., debounceHandler); // debounce period in [ms]
   debounceTimer.start();
 #endif
+
   // Init OLED screen
   if (!screen.begin(SSD1306_SWITCHCAPVCC, SCREEN_I2C_ADDRESS))
     while (1);
@@ -327,7 +342,7 @@ void clearAndDrawGraph() {
 #if 0
   for (x = 0; x < SAMPLES; x++) {
     //GLCD.SetDot(x, 60 - data[clear + 0][x], WHITE);
-    screen.drawPixel(x, screen.height( )- data[clear + 0][x], SSD1306_WHITE);
+    screen.drawPixel(x, screen.height( ) - data[clear + 0][x], SSD1306_WHITE);
     screen.drawPixel(x, screen.height() - data[clear + 1][x], SSD1306_WHITE);
     screen.drawPixel(x, screen.height() - data[sample + 0][x], SSD1306_BLACK);
     screen.drawPixel(x, screen.height() - data[sample + 1][x], SSD1306_BLACK);
@@ -388,7 +403,7 @@ void clearAndDrawDot(int i) {
 
 
 void loop() {
-   //debounceTimer.update();
+  debounceTimer.update();
 
   if (trig_mode != TRIG_SCAN) {
 
@@ -436,8 +451,12 @@ void loop() {
   //Serial.println(Start);
   // sample and draw depending on the sampling rate
   if (rate <= 5 && Start) {
-    if (sample == 0){sample = 2;}
-    else{sample = 0;}
+    if (sample == 0) {
+      sample = 2;
+    }
+    else {
+      sample = 0;
+    }
     if (rate == 0) { // full speed, channel 0 only
       unsigned long st = millis();
       for (int i = 0; i < SAMPLES; i ++) {
@@ -472,7 +491,7 @@ void loop() {
         data[sample + 0][i] = adRead(ad_ch0, ch0_mode, ch0_off);
         data[sample + 1][i] = adRead(ad_ch1, ch1_mode, ch1_off);
       }
-      
+
       // Serial.println(millis()-st0);
     }
     clearAndDrawGraph();
@@ -498,7 +517,7 @@ void loop() {
     unsigned long st0 = millis();
     unsigned long st = micros();
     for (int i = 0; i < SAMPLES; i ++) {
-      while ((st - micros()) < r_[rate - 6]) {
+      while ((st - micros()) < r_[rate - 6]) {  // here we wait
         //TODO
         //CheckSW();
         if (rate < 6)
