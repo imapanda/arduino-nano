@@ -48,6 +48,8 @@ volatile int pushButtonReleasedCount = 0;
 #endif
 
 
+unsigned int counter = 0;
+unsigned int counter_debouncer_handler = 0;
 // PORT
 #define txtLINE0   0
 #define txtLINE1   8
@@ -97,25 +99,27 @@ byte sample = 0;                         // index for double buffer*/
 #ifdef MENU_BUTTONS
 bool getPushButtonState(void) {
 
-  Serial.print(" getPushButtonState ");
+  /*Serial.print(" getPushButtonState ");
   Serial.print(digitalRead(BTN_MENU));
   Serial.print(" ");
   Serial.print(digitalRead(BTN_MENU) == HIGH);
-  Serial.print(" - ");
+  Serial.print(" - ");*/
   return digitalRead(BTN_MENU) == HIGH;
 }
 
 void update_debounceTimer() {
 
   digitalWrite(DEBUG_LED_PIN, HIGH);
+  /*Serial.print("update_debounceTimer ");
+  Serial.print(counter_debouncer_handler);
+  Serial.print(" ");*/
 
-  Serial.print("update_debounceTimer ");
   // read the current push button state
   bool newPushButtonState = getPushButtonState();
 
-  Serial.print(oldPushButtonState);
+  /*Serial.print(oldPushButtonState);
   Serial.print(" vs ");
-  Serial.println(newPushButtonState);
+  Serial.println(newPushButtonState);*/
 
   
   // same state as previous => exit
@@ -151,13 +155,15 @@ void update_debounceTimer() {
       oldPushButtonState = false; // set internal state to RELEASED
       pushButtonReleasedCount++;
       pushButtonStableLevelCount = 0;
-      Serial.print("pushButtonReleasedCount");
-      Serial.println(pushButtonReleasedCount);
+      /*Serial.print("pushButtonReleasedCount");
+      Serial.println(pushButtonReleasedCount);*/
     }
   }
-  Serial.println(pushButtonStableLevelCount);
-  Serial.println(pushButtonStableLevelCount);
-  digitalWrite(DEBUG_LED_PIN, HIGH);
+  /*Serial.println(pushButtonStableLevelCount);
+  Serial.println(pushButtonStableLevelCount);*/
+  
+  digitalWrite(DEBUG_LED_PIN, LOW);
+  counter_debouncer_handler++;
 
 }
 #endif
@@ -172,6 +178,7 @@ void drawGrid() {
       screen.drawPixel(x, y, SSD1306_WHITE);
       // TODO
       //CheckSW();
+      debounceTimer.update();
     }
   }
   for (x = 0; x <= SAMPLES; x += 10 ) {  // Vertical Line
@@ -180,6 +187,7 @@ void drawGrid() {
       screen.drawPixel(x, y, SSD1306_WHITE);
       // TODO
       //CheckSW();
+      debounceTimer.update();
     }
   }
   screen.display(); // print what we've done
@@ -358,6 +366,7 @@ void clearAndDrawGraph() {
       screen.drawLine(x, screen.height() - data[sample + 1][x], x + 1, screen.height() - data[sample + 1][x + 1], SSD1306_BLACK);
     //TODO
     //CheckSW();
+      debounceTimer.update();
   }
 #endif
   screen.display(); // print what we've done
@@ -403,6 +412,23 @@ void clearAndDrawDot(int i) {
 
 
 void loop() {
+  Serial.print(counter);
+  Serial.print(" ");
+  
+  Serial.print("update_debounceTimer ");
+  Serial.print(counter_debouncer_handler);
+  Serial.print(" ");
+  Serial.print(oldPushButtonState);
+  Serial.print(" ");
+  Serial.print(pushButtonStableLevelCount);
+  Serial.print(" ");
+  Serial.print(pushButtonPushedCount);
+  Serial.print(" ");
+  Serial.print(pushButtonReleasedCount);
+  Serial.println(" ");
+  //Serial.print(" ");
+
+  
   debounceTimer.update();
 
   if (trig_mode != TRIG_SCAN) {
@@ -438,6 +464,8 @@ void loop() {
 
       // TODO
       //CheckSW();
+      debounceTimer.update();
+      
       if (trig_mode == TRIG_SCAN)
         break;
       if (trig_mode == TRIG_AUTO && (millis() - st) > 100)
@@ -497,6 +525,8 @@ void loop() {
     clearAndDrawGraph();
     // TODO
     //CheckSW();
+    debounceTimer.update();
+    
     drawGrid();
     drawText();
   } else if (Start) { // 5ms - 500ms sampling
@@ -520,6 +550,8 @@ void loop() {
       while ((st - micros()) < r_[rate - 6]) {  // here we wait
         //TODO
         //CheckSW();
+        debounceTimer.update();
+        
         if (rate < 6)
           break;
       }
@@ -545,13 +577,14 @@ void loop() {
   } else {
     // TODO
     //CheckSW();
+    debounceTimer.update();
   }
 
   if (trig_mode == TRIG_ONE) {
     Start = 0;
   }
 
-
-
+  
+  counter++;
 
 }
