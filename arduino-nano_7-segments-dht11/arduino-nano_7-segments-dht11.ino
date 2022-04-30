@@ -20,7 +20,7 @@
 // CONST VARIABLES
 //------------------
 
-#define DEBUG 0 //Quick debug for module 1 (multiplexing 7 segment cathodes) => DEBUG 0 means no debug
+#define DEBUG 1  //Quick debug for module 1 (multiplexing 7 segment cathodes) => DEBUG 0 means no debug
 
 const unsigned int DHT11_PIN       = 4; // For dht.h
 const unsigned int DHT11_LED_PIN   = 3; // For dht11 led on ticker
@@ -39,7 +39,7 @@ const unsigned int SEGMENT_PINS[] = {12, 11, 10, 9, 8, 7, 6, 5 };   // { a b c d
 //------------
 
 #if DEBUG
-  const unsigned int DISPLAY_TICKS = 200;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
+  const unsigned int DISPLAY_TICKS = 100;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
 #else
   const unsigned int DISPLAY_TICKS = 2;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
 #endif
@@ -81,7 +81,7 @@ void displayHumidity(void);
 // All these tickers are running endless
 Ticker dht11_updater   (update_dht11_values,   DHT_11_READ_TIMING);      //calls function update_dht11_values() every DHT_11_READ_TIMING seconds, internal resolution is micros
 Ticker counter_updater (update_counter_value,  DISPLAY_MODE_INTERVAL);   // Change display screen timer
-Ticker display_update  (update_display,        1);           //25 images secondes = 40ms = 1/25; 100hz = 10ms
+Ticker display_update  (update_display,        DISPLAY_TICKS);           //25 images secondes = 40ms = 1/25; 100hz = 10ms
 
 dht DHT;
 float temp = 0;
@@ -192,6 +192,8 @@ void setup() {
   
 
   Serial.begin(9600);
+
+  Serial.println(DISPLAY_TICKS);
   
   // initialize digital pins as outputs.
   uint8_t i;
