@@ -49,7 +49,7 @@ volatile int pushButtonReleasedCount = 0;
 
 
 unsigned int counter = 0;
-unsigned int counter_debouncer_handler = 0;
+
 // PORT
 #define txtLINE0   0
 #define txtLINE1   8
@@ -95,33 +95,25 @@ unsigned long startMillis;
 byte data[4][SAMPLES];                   // keep twice of the number of channels to make it a double buffer
 byte sample = 0;                         // index for double buffer*/
 
+void change_menu(){
+  //called when menu button is pressed
+  // We have 3 menus
+  menu++;
+  if(menu>2){menu=0;}  
+}
 
 #ifdef MENU_BUTTONS
 bool getPushButtonState(void) {
-
-  /*Serial.print(" getPushButtonState ");
-  Serial.print(digitalRead(BTN_MENU));
-  Serial.print(" ");
-  Serial.print(digitalRead(BTN_MENU) == HIGH);
-  Serial.print(" - ");*/
   return digitalRead(BTN_MENU) == HIGH;
 }
 
 void update_debounceTimer() {
 
   digitalWrite(DEBUG_LED_PIN, HIGH);
-  /*Serial.print("update_debounceTimer ");
-  Serial.print(counter_debouncer_handler);
-  Serial.print(" ");*/
 
   // read the current push button state
   bool newPushButtonState = getPushButtonState();
 
-  /*Serial.print(oldPushButtonState);
-  Serial.print(" vs ");
-  Serial.println(newPushButtonState);*/
-
-  
   // same state as previous => exit
   if (newPushButtonState == oldPushButtonState) {
     return;
@@ -140,6 +132,7 @@ void update_debounceTimer() {
     if (pushButtonStableLevelCount >= MAX_BOUND_COUNT) {
       oldPushButtonState = true; // set internal state to PUSHED
       pushButtonPushedCount++;
+      
       pushButtonStableLevelCount = 0;
     }
   }
@@ -154,17 +147,12 @@ void update_debounceTimer() {
     if (pushButtonStableLevelCount >= MAX_BOUND_COUNT) {
       oldPushButtonState = false; // set internal state to RELEASED
       pushButtonReleasedCount++;
+      change_menu();
       pushButtonStableLevelCount = 0;
-      /*Serial.print("pushButtonReleasedCount");
-      Serial.println(pushButtonReleasedCount);*/
     }
   }
-  /*Serial.println(pushButtonStableLevelCount);
-  Serial.println(pushButtonStableLevelCount);*/
-  
-  digitalWrite(DEBUG_LED_PIN, LOW);
-  counter_debouncer_handler++;
 
+  digitalWrite(DEBUG_LED_PIN, LOW);
 }
 #endif
 
@@ -366,7 +354,7 @@ void clearAndDrawGraph() {
       screen.drawLine(x, screen.height() - data[sample + 1][x], x + 1, screen.height() - data[sample + 1][x + 1], SSD1306_BLACK);
     //TODO
     //CheckSW();
-      debounceTimer.update();
+    debounceTimer.update();
   }
 #endif
   screen.display(); // print what we've done
@@ -414,10 +402,7 @@ void clearAndDrawDot(int i) {
 void loop() {
   Serial.print(counter);
   Serial.print(" ");
-  
-  Serial.print("update_debounceTimer ");
-  Serial.print(counter_debouncer_handler);
-  Serial.print(" ");
+
   Serial.print(oldPushButtonState);
   Serial.print(" ");
   Serial.print(pushButtonStableLevelCount);
@@ -425,10 +410,12 @@ void loop() {
   Serial.print(pushButtonPushedCount);
   Serial.print(" ");
   Serial.print(pushButtonReleasedCount);
+  Serial.print(" Menu: ");
+  Serial.print(menu);
   Serial.println(" ");
   //Serial.print(" ");
 
-  
+
   debounceTimer.update();
 
   if (trig_mode != TRIG_SCAN) {
@@ -465,7 +452,7 @@ void loop() {
       // TODO
       //CheckSW();
       debounceTimer.update();
-      
+
       if (trig_mode == TRIG_SCAN)
         break;
       if (trig_mode == TRIG_AUTO && (millis() - st) > 100)
@@ -526,7 +513,7 @@ void loop() {
     // TODO
     //CheckSW();
     debounceTimer.update();
-    
+
     drawGrid();
     drawText();
   } else if (Start) { // 5ms - 500ms sampling
@@ -551,7 +538,7 @@ void loop() {
         //TODO
         //CheckSW();
         debounceTimer.update();
-        
+
         if (rate < 6)
           break;
       }
@@ -584,7 +571,7 @@ void loop() {
     Start = 0;
   }
 
-  
+
   counter++;
 
 }
