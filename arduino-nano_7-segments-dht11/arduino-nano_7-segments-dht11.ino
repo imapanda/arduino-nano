@@ -20,7 +20,7 @@
 // CONST VARIABLES
 //------------------
 
-#define DEBUG 1  //Quick debug for module 1 (multiplexing 7 segment cathodes) => DEBUG 0 means no debug
+#define DEBUG 0  //Quick debug for module 1 (multiplexing 7 segment cathodes) => DEBUG 0 means no debug
 
 const unsigned int DHT11_PIN       = 4; // For dht.h
 const unsigned int DHT11_LED_PIN   = 3; // For dht11 led on ticker
@@ -190,7 +190,12 @@ void displayHumidity(void) {
 // the setup function runs once when you press reset or power the board
 void setup() {
   
-
+  // Init this pin here because it's used for boot infos
+  pinMode(DHT11_PIN, INPUT);
+  digitalWrite(DHT11_LED_PIN, LOW);
+  delay(200);
+  digitalWrite(DHT11_LED_PIN, LOW);
+  
   Serial.begin(9600);
 
   Serial.println(DISPLAY_TICKS);
@@ -202,9 +207,11 @@ void setup() {
   }
   pinMode(MULTIPLEXING_PIN, OUTPUT);
 
-  pinMode(DHT11_PIN, INPUT);
   pinMode(DHT11_LED_PIN, OUTPUT);
   pinMode(DISPLAY_LED_PIN, OUTPUT);
+
+  // Read DHT11 values for pre-ticker init values
+  update_dht11_values();
 
   dht11_updater.start();
   counter_updater.start();
@@ -212,11 +219,11 @@ void setup() {
   
   // blink 10 times for setup OK
   digitalWrite(DHT11_LED_PIN, LOW);
-  for (i = 0; i < 10; i++) {
+  for (i = 0; i < 15; i++) {
     digitalWrite(DHT11_LED_PIN, HIGH);
-    delay(100);
+    delay(50);
     digitalWrite(DHT11_LED_PIN, LOW);
-    delay(100);
+    delay(50);
   }
   return;
 }
