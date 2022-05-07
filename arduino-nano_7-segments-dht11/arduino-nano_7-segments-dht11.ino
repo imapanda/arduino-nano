@@ -11,6 +11,7 @@
  * 
  * TODOs : 
  * - Find the glitch making both SSD 'drool'
+ *    -> We may not be able to get less drool cause of the hardware multiplexin comon cathode ...
  * 
  */
 
@@ -116,6 +117,15 @@ void displayDigit(int digit) {
   return;
 }
 
+void display_clear(){
+  // Write 0 on each segment
+  uint8_t i;
+  for (i = 0; i < 8; i++) {
+    digitalWrite(SEGMENT_PINS[i], 0);
+  }
+  return;
+}
+
 
 void update_counter_value(void) {
   // little trick alternate between 0 and 1 values :
@@ -157,16 +167,31 @@ void update_dht11_values(void) {
 
 void displayTemp(void) {
 
+  display_clear();
   digitalWrite(DISPLAY_LED_PIN, HIGH);
-  if (digit == E_DIZ) {  // Enum tens mode
-    displayDigit(DHT.temperature / 10);
-    digitalWrite(MULTIPLEXING_PIN, HIGH);
-    digit = E_UNIT;
-  } else {  // Enum units mode
-    displayDigit((int)(DHT.temperature + .5) % 10); // (int)(g+0.5);// Converts float to int. +.5 works if g is positive only (for rounding value), -0.5 if negative
-    digitalWrite(MULTIPLEXING_PIN, LOW);
-    digit = E_DIZ;
+  
+  switch(digit) {
+    case E_DIZ:
+      displayDigit(DHT.temperature / 10);
+      digitalWrite(MULTIPLEXING_PIN, HIGH);
+      digit = E_UNIT;
+      break;
+    case E_UNIT:
+      digitalWrite(MULTIPLEXING_PIN, LOW);
+      displayDigit((int)(DHT.temperature + .5) % 10); // (int)(g+0.5);// Converts float to int. +.5 works if g is positive only (for rounding value), -0.5 if negative
+      digit = E_DIZ;
+      break;
   }
+  
+//  if (digit == E_DIZ) {  // Enum tens mode
+//    displayDigit(DHT.temperature / 10);
+//    digitalWrite(MULTIPLEXING_PIN, HIGH);
+//    digit = E_UNIT;
+//  } else {  // Enum units mode
+//    digitalWrite(MULTIPLEXING_PIN, LOW);
+//    displayDigit((int)(DHT.temperature + .5) % 10); // (int)(g+0.5);// Converts float to int. +.5 works if g is positive only (for rounding value), -0.5 if negative
+//    digit = E_DIZ;
+//  }
 
   return;
 }
@@ -174,16 +199,31 @@ void displayTemp(void) {
 
 void displayHumidity(void) {
 
+  display_clear();
   digitalWrite(DISPLAY_LED_PIN, LOW);
-  if (digit == E_DIZ) {  // Enum tens mode
-    displayDigit(DHT.humidity / 10);
-    digitalWrite(MULTIPLEXING_PIN, HIGH);
-    digit = E_UNIT;
-  } else {  // Enum units mode
-    displayDigit((int)(DHT.humidity + .5) % 10);
-    digitalWrite(MULTIPLEXING_PIN, LOW);
-    digit = E_DIZ;
+
+  switch(digit) {
+    case E_DIZ:
+      displayDigit(DHT.humidity / 10);
+      digitalWrite(MULTIPLEXING_PIN, HIGH);
+      digit = E_UNIT;
+      break;
+    case E_UNIT:
+      digitalWrite(MULTIPLEXING_PIN, LOW);
+      displayDigit((int)(DHT.humidity + .5) % 10);
+      digit = E_DIZ;
+      break;
   }
+
+//  if (digit == E_DIZ) {  // Enum tens mode
+//    displayDigit(DHT.humidity / 10);
+//    digitalWrite(MULTIPLEXING_PIN, HIGH);
+//    digit = E_UNIT;
+//  } else {  // Enum units mode
+//    digitalWrite(MULTIPLEXING_PIN, LOW);
+//    displayDigit((int)(DHT.humidity + .5) % 10);
+//    digit = E_DIZ;
+//  }
 
   return;
 }
