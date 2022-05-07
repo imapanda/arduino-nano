@@ -9,7 +9,9 @@
  * - Module 2 : Display mode on leds, alternate between temperature and humdity and get return with leds on 1 GPIO (n°2)
  * - Module 3 : DHT11 (n°4) + Led (n°3) ON on reading
  * 
- *
+ * TODOs : 
+ * - Find the glitch making both SSD 'drool'
+ * 
  */
 
 #include <dht.h>
