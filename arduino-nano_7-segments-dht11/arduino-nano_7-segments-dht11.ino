@@ -259,7 +259,7 @@ void setup() {
   counter_updater.start();
   display_update.start();
   
-  // blink 10 times for setup OK
+  // blink for setup done
   digitalWrite(DHT11_LED_PIN, LOW);
   for (i = 0; i < 15; i++) {
     digitalWrite(DHT11_LED_PIN, HIGH);
@@ -272,6 +272,8 @@ void setup() {
 
 
 void update_display(void) {
+  display_clear();  // test anti drool
+  
   functions[counter & 1]();  // switch between each of the 2 functions of the array. Easy to add/remove functions from the array.
   //Serial.print("switching display mode");
   //Serial.println(counter & 1);
