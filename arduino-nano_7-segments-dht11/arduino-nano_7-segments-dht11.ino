@@ -1,16 +1,16 @@
 /*
-  C.BRESSY & P.BRESSY
-  24.04.2022
-
-  Using 7 segments displays (common cathode) on Arduino Nano with logic gate for multiplexing.
-  Those 2 x 7segments displays will be used to display temperature & humidity from DHT11 sensor
-
-  Modules :
-    - Module 1 : Multiplexing cathodes of the 7 segments displays using 1 GPIO (n°5)
-    - Module 2 : Display mode on leds, alternate between temperature and humdity and get return with leds on 1 GPIO (n°2)
-    - Module 3 : DHT11 (n°4) + Led (n°3) ON on reading
-  
-*/
+ * 24.04.2022 - C.BRESSY & P.BRESSY
+ * 
+ * Using 7 segments displays (common cathode) on Arduino Nano with logic gate for multiplexing.
+ * Those 2 x 7segments displays will be used to display temperature & humidity from DHT11 sensor
+ * 
+ * Modules :
+ * - Module 1 : Multiplexing cathodes of the 7 segments displays using 1 GPIO (n°5)
+ * - Module 2 : Display mode on leds, alternate between temperature and humdity and get return with leds on 1 GPIO (n°2)
+ * - Module 3 : DHT11 (n°4) + Led (n°3) ON on reading
+ * 
+ *
+ */
 
 #include <dht.h>
 #include "Ticker.h" // See https://github.com/sstaub/Ticker for more infos
