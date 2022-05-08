@@ -44,7 +44,7 @@ const unsigned int SEGMENT_PINS[] = {12, 11, 10, 9, 8, 7, 6, 5 };   // { a b c d
 #if DEBUG
   const unsigned int DISPLAY_TICKS = 100;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
 #else
-  const unsigned int DISPLAY_TICKS = 2;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
+  const unsigned int DISPLAY_TICKS = 11;  // 25 images secondes = 40ms = 1/25; 100hz = 10ms
 #endif
 
 const unsigned int DHT_11_READ_TIMING = 10000;  // Delay between each DHT11 reads (ms)
@@ -167,18 +167,20 @@ void update_dht11_values(void) {
 
 void displayTemp(void) {
 
-  display_clear();
+//  display_clear();
   digitalWrite(DISPLAY_LED_PIN, HIGH);
   
   switch(digit) {
     case E_DIZ:
+//      display_clear();
       displayDigit(DHT.temperature / 10);
       digitalWrite(MULTIPLEXING_PIN, HIGH);
       digit = E_UNIT;
       break;
     case E_UNIT:
-      digitalWrite(MULTIPLEXING_PIN, LOW);
+      display_clear();
       displayDigit((int)(DHT.temperature + .5) % 10); // (int)(g+0.5);// Converts float to int. +.5 works if g is positive only (for rounding value), -0.5 if negative
+      digitalWrite(MULTIPLEXING_PIN, LOW);
       digit = E_DIZ;
       break;
   }
@@ -199,18 +201,20 @@ void displayTemp(void) {
 
 void displayHumidity(void) {
 
-  display_clear();
+//  display_clear();
   digitalWrite(DISPLAY_LED_PIN, LOW);
 
   switch(digit) {
     case E_DIZ:
+//      display_clear();
       displayDigit(DHT.humidity / 10);
       digitalWrite(MULTIPLEXING_PIN, HIGH);
       digit = E_UNIT;
       break;
     case E_UNIT:
-      digitalWrite(MULTIPLEXING_PIN, LOW);
+      display_clear();
       displayDigit((int)(DHT.humidity + .5) % 10);
+      digitalWrite(MULTIPLEXING_PIN, LOW);
       digit = E_DIZ;
       break;
   }
@@ -272,7 +276,7 @@ void setup() {
 
 
 void update_display(void) {
-  display_clear();  // test anti drool
+  //display_clear();  // test anti drool
   
   functions[counter & 1]();  // switch between each of the 2 functions of the array. Easy to add/remove functions from the array.
   //Serial.print("switching display mode");
