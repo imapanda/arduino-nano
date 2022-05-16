@@ -78,21 +78,26 @@ boolean IN_VALUES[8];
 // 10 output pins 2/4 BCD (0-2) + 2x4 BCD (0-9) :
 boolean OUT_VALUES[10];
 
-boolean _add3_S0(bool A0, bool A1, bool A2, bool A3){
+boolean _add3_S0(bool _a3, bool _a2, bool _a1, bool _a0){
   return 0;  // default when result of truth table is X
 }
-boolean _add3_S1(bool A0, bool A1, bool A2, bool A3){
+boolean _add3_S1(bool _a3, bool _a2, bool _a1, bool _a0){
   return 0;  // default when result of truth table is X
 }
-boolean _add3_S2(bool A0, bool A1, bool A2, bool A3){
+boolean _add3_S2(bool _a3, bool _a2, bool _a1, bool _a0){
   return 0;  // default when result of truth table is X
 }
-boolean _add3_S3(bool A0, bool A1, bool A2, bool A3){
+boolean _add3_S3(bool _a3, bool _a2, bool _a1, bool _a0){
   return 0;  // default when result of truth table is X
 }
 
-boolean * add3(bool A0, bool A1, bool A2, bool A3){
-  boolean add3_val[] = {0,0,0,0};  // outputs
+boolean * add3(bool _a3, bool _a2, bool _a1, bool _a0){
+  boolean add3_val[] = {
+    _add3_S3(_a3,_a2,_a1,_a0),
+    _add3_S2(_a3,_a2,_a1,_a0),
+    _add3_S1(_a3,_a2,_a1,_a0),
+    _add3_S0(_a3,_a2,_a1,_a0)
+    };  // Outputs
   return add3_val;  // default when result of truth table is X
 }
 
