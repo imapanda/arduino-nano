@@ -79,15 +79,19 @@ boolean IN_VALUES[8];
 boolean OUT_VALUES[10];
 
 boolean _add3_S0(bool _a3, bool _a2, bool _a1, bool _a0){
+  // S0 = A3'A2'A0 + A2A1A0' + A3A0'
   return 0;  // default when result of truth table is X
 }
 boolean _add3_S1(bool _a3, bool _a2, bool _a1, bool _a0){
+  // S1 = A1A0 + A3A0' + A2'A1A0'
   return 0;  // default when result of truth table is X
 }
 boolean _add3_S2(bool _a3, bool _a2, bool _a1, bool _a0){
+  // S2 = A2A1'A0' + A3A0
   return 0;  // default when result of truth table is X
 }
 boolean _add3_S3(bool _a3, bool _a2, bool _a1, bool _a0){
+  // S3 = A3 + A2A0 + A2A1
   return 0;  // default when result of truth table is X
 }
 
