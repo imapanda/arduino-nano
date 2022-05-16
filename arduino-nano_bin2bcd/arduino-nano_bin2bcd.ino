@@ -80,19 +80,19 @@ boolean OUT_VALUES[10];
 
 boolean _add3_S0(bool _a3, bool _a2, bool _a1, bool _a0){
   // S0 = A3'A2'A0 + A2A1A0' + A3A0'
-  return 0;  // default when result of truth table is X
+  return digitalRead(INPUT_PINS[7]);
 }
 boolean _add3_S1(bool _a3, bool _a2, bool _a1, bool _a0){
   // S1 = A1A0 + A3A0' + A2'A1A0'
-  return 0;  // default when result of truth table is X
+  return digitalRead(INPUT_PINS[6]);
 }
 boolean _add3_S2(bool _a3, bool _a2, bool _a1, bool _a0){
   // S2 = A2A1'A0' + A3A0
-  return 0;  // default when result of truth table is X
+  return digitalRead(INPUT_PINS[5]);
 }
 boolean _add3_S3(bool _a3, bool _a2, bool _a1, bool _a0){
   // S3 = A3 + A2A0 + A2A1
-  return 0;  // default when result of truth table is X
+  return digitalRead(INPUT_PINS[4]);
 }
 
 boolean * add3(bool _a3, bool _a2, bool _a1, bool _a0){
@@ -101,11 +101,14 @@ boolean * add3(bool _a3, bool _a2, bool _a1, bool _a0){
     _add3_S2(_a3,_a2,_a1,_a0),
     _add3_S1(_a3,_a2,_a1,_a0),
     _add3_S0(_a3,_a2,_a1,_a0)
-    };  // Outputs
-  return add3_val;  // default when result of truth table is X
+    };
+  return add3_val;
 }
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("Setup begin.");
+  
   for (int i = 0; i < 8; i++) {
     pinMode(INPUT_PINS[i], INPUT);
   }
@@ -114,6 +117,30 @@ void setup() {
 //  for (int i = 0; i < 8; i++) {
 //    pinMode(OUTPUT_PINS[i], INPUT);
 //  }
+  Serial.println("Setup done.");
 }
-
-void loop() {}
+int count = 0;
+void loop() {
+  Serial.print(count);
+  Serial.print(" - ");
+  Serial.print(add3(INPUT_PINS[3],INPUT_PINS[2],INPUT_PINS[1],INPUT_PINS[0])[0]);
+  Serial.print(add3(INPUT_PINS[3],INPUT_PINS[2],INPUT_PINS[1],INPUT_PINS[0])[1]);
+  Serial.print(add3(INPUT_PINS[3],INPUT_PINS[2],INPUT_PINS[1],INPUT_PINS[0])[2]);
+  Serial.print(add3(INPUT_PINS[3],INPUT_PINS[2],INPUT_PINS[1],INPUT_PINS[0])[3]);
+  Serial.print(" - ");
+  boolean tmp_result[4] = {add3(INPUT_PINS[3],INPUT_PINS[2],INPUT_PINS[1],INPUT_PINS[0])};
+  int i = 0;
+  for(i = 0; i < 4; i++){
+    Serial.print(i);
+    Serial.print(":");
+    Serial.print(tmp_result[i]);
+    Serial.print("; ");
+  }
+  Serial.print("-- ");
+  Serial.print(digitalRead(INPUT_PINS[7]));
+  Serial.print(digitalRead(INPUT_PINS[6]));
+  Serial.print(digitalRead(INPUT_PINS[5]));
+  Serial.println(digitalRead(INPUT_PINS[4]));
+  delay(200);
+  count++;
+}
