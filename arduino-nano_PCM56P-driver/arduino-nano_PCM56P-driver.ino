@@ -11,7 +11,7 @@
 
 #include <SPI.h>
 
-#define SWITCHING_DELAY 10
+#define SWITCHING_DELAY 1
 
 // DIGITAL INPUT CODES FOR PCM56P:
 //  |-------------------------------  |---------------  |-------------------- |-------------------------  |
@@ -36,7 +36,7 @@ const int chipSelectPin = 10;
 
 // PCM56P is MSB first
 // 15000000 = 15MHz
-SPISettings settings(20000000, MSBFIRST, SPI_MODE1);
+SPISettings settings(40000000, MSBFIRST, SPI_MODE1);
 
 void setup() {
   pinMode(chipSelectPin, OUTPUT);
@@ -49,54 +49,78 @@ void setup() {
 }
 
 void loop() {
-  SPI.beginTransaction(settings);
+//  SPI.beginTransaction(settings);
+//
+//  // take the SS pin low to select the chip:
+//  digitalWrite (chipSelectPin, LOW);
+//
+//  SPI.transfer(0x7F);
+//  SPI.transfer(0xFF);
+//  //SPI.transfer(10, 0x7AAA, SPI_CONTINUE);
+//  //SPI.transfer(result);
+//
+//
+//  // take the SS pin high to unselect the chip:
+//  digitalWrite (chipSelectPin, HIGH);
+//
+//  SPI.endTransaction();
+//
+//  delay(SWITCHING_DELAY);
+//  
+//  //------------------ another
+//  SPI.beginTransaction(settings);
+//
+//  // take the SS pin low to select the chip:
+//  digitalWrite (chipSelectPin, LOW);
+//
+//  SPI.transfer(0x2F);
+//  SPI.transfer(0x22);
+//
+//
+//  // take the SS pin high to unselect the chip:
+//  digitalWrite (chipSelectPin, HIGH);
+//
+//  SPI.endTransaction();
+//  delay(SWITCHING_DELAY);
+//
+//    //------------------ another
+//  SPI.beginTransaction(settings);
+//
+//  // take the SS pin low to select the chip:
+//  digitalWrite (chipSelectPin, LOW);
+//
+//  SPI.transfer(0x80);
+//  SPI.transfer(0x00);
+//
+//
+//  // take the SS pin high to unselect the chip:
+//  digitalWrite (chipSelectPin, HIGH);
+//
+//  SPI.endTransaction();
+//  delay(SWITCHING_DELAY);
+//  //Serial.println("Im ok");
+  write_spi_value(32000);
+  delay(SWITCHING_DELAY);
+  write_spi_value(16000);
+  delay(SWITCHING_DELAY);
+  write_spi_value(0);
+  delay(SWITCHING_DELAY);
+  write_spi_value(-16000);
+  delay(SWITCHING_DELAY);
+  write_spi_value(-16001);
+  delay(SWITCHING_DELAY);
+}
 
+bool write_spi_value(int value){
   // take the SS pin low to select the chip:
   digitalWrite (chipSelectPin, LOW);
+  SPI.beginTransaction(settings);
 
-  SPI.transfer(0x7F);
-  SPI.transfer(0xFF);
-  //SPI.transfer(10, 0x7AAA, SPI_CONTINUE);
-  //SPI.transfer(result);
-
-
-  // take the SS pin high to unselect the chip:
-  digitalWrite (chipSelectPin, HIGH);
+  SPI.transfer((value & 0xFF));         // MSB first
+  SPI.transfer(((value >> 8) & 0xFF));  // LSB
 
   SPI.endTransaction();
-
-  delay(SWITCHING_DELAY);
   
-  //------------------ another
-  SPI.beginTransaction(settings);
-
-  // take the SS pin low to select the chip:
-  digitalWrite (chipSelectPin, LOW);
-
-  SPI.transfer(0x2F);
-  SPI.transfer(0x22);
-
-
   // take the SS pin high to unselect the chip:
   digitalWrite (chipSelectPin, HIGH);
-
-  SPI.endTransaction();
-  delay(SWITCHING_DELAY);
-
-    //------------------ another
-  SPI.beginTransaction(settings);
-
-  // take the SS pin low to select the chip:
-  digitalWrite (chipSelectPin, LOW);
-
-  SPI.transfer(0x80);
-  SPI.transfer(0x00);
-
-
-  // take the SS pin high to unselect the chip:
-  digitalWrite (chipSelectPin, HIGH);
-
-  SPI.endTransaction();
-  delay(SWITCHING_DELAY);
-  //Serial.println("Im ok");
 }
