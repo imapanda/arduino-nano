@@ -1,3 +1,14 @@
+/*
+ * 20.07.2022 - C.BRESSY
+ * 
+ * Using MCP56P to generate audio waves
+ * 
+ * Pins used on arduino => MCP56 :
+ *  - D13 (SCK)   =>  7 (Data)
+ *  - D11 (MOSI)  =>  6 (LE)
+ *  - D10 (SS)    =>  5 (CLK)
+ */
+
 #include <SPI.h>
 
 #define SWITCHING_DELAY 10
